@@ -32,9 +32,42 @@ load_css()
 # Load model and processor
 @st.cache_resource
 def load_model_and_processor():
-    model_data = joblib.load('models/attrition_model.pkl')
-    processor = joblib.load('models/data_processor.pkl')
-    return model_data, processor
+    """Load model and processor, train if needed"""
+    import os
+    import subprocess
+
+    model_path = 'models/attrition_model.pkl'
+    processor_path = 'models/data_processor.pkl'
+
+    # Check if models exist
+    if not os.path.exists(model_path) or not os.path.exists(processor_path):
+        st.warning("🔄 Models not found. Training new model... (this will take ~2 minutes)")
+        try:
+            subprocess.run(['python', 'train_model_fast.py'], check=True)
+            st.success("✅ Model trained successfully!")
+        except Exception as e:
+            st.error(f"Failed to train model: {str(e)}")
+            raise
+
+    # Try to load models
+    try:
+        model_data = joblib.load(model_path)
+        processor = joblib.load(processor_path)
+        return model_data, processor
+    except Exception as e:
+        # If loading fails (compatibility issue), retrain
+        st.warning(f"⚠️ Model compatibility issue detected. Retraining model... (this will take ~2 minutes)")
+        st.info("This is normal on first deployment to cloud. Please wait...")
+        try:
+            subprocess.run(['python', 'train_model_fast.py'], check=True)
+            model_data = joblib.load(model_path)
+            processor = joblib.load(processor_path)
+            st.success("✅ Model retrained and loaded successfully!")
+            return model_data, processor
+        except Exception as retrain_error:
+            st.error(f"Failed to retrain model: {str(retrain_error)}")
+            st.error("Please contact support or check the logs.")
+            raise
 
 # Sample employee data for demo
 def get_sample_employee():
