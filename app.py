@@ -15,7 +15,7 @@ from pathlib import Path
 # Page configuration
 st.set_page_config(
     page_title="Attrition Risk Predictor",
-    page_icon="👔",
+    page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -57,9 +57,9 @@ def load_model_and_processor():
                     capture_output=True,
                     text=True
                 )
-                st.success("✅ Your predictor is ready!")
+                st.success("Your predictor is ready!")
             except subprocess.CalledProcessError as e:
-                st.error("⚠️ Setup encountered an issue. Please refresh the page or contact support.")
+                st.error("Setup encountered an issue. Please refresh the page or contact support.")
                 raise RuntimeError("Setup failed")
 
     # Load models
@@ -96,7 +96,7 @@ def load_model_and_processor():
                     capture_output=True,
                     text=True
                 )
-                st.success("✅ Your predictor is ready!")
+                st.success("Your predictor is ready!")
 
                 # Load fresh models
                 model_data = joblib.load(model_path)
@@ -110,7 +110,7 @@ def load_model_and_processor():
                 return model_data, processor
 
             except Exception as retry_error:
-                st.error("⚠️ Something went wrong. Please refresh the page or contact support.")
+                st.error("Something went wrong. Please refresh the page or contact support.")
                 raise
 
 # Sample employee data for demo
@@ -239,7 +239,7 @@ def main():
     # Hero section
     st.markdown("""
     <div class='hero-section'>
-        <h1>👔 Employee Attrition Risk Predictor</h1>
+        <h1>Employee Attrition Risk Predictor</h1>
         <p>Predict employee turnover risk with AI-powered insights. Make data-driven retention decisions.</p>
     </div>
     """, unsafe_allow_html=True)
@@ -256,15 +256,15 @@ def main():
 
     # Sidebar for navigation
     with st.sidebar:
-        st.markdown("### 🎯 Navigation")
+        st.markdown("### Navigation")
         page = st.radio(
             "",
-            ["🏠 Home", "🔮 Predict Risk", "📊 Bulk Analysis", "💡 How It Works"],
+            ["Home", "Predict Risk", "Bulk Analysis", "How It Works"],
             label_visibility="collapsed"
         )
 
         st.markdown("---")
-        st.markdown("### ℹ️ About")
+        st.markdown("### About")
         st.markdown("""
         This application uses artificial intelligence to predict employee attrition risk based on various workplace and personal factors.
 
@@ -272,11 +272,11 @@ def main():
         """)
 
     # Home page
-    if page == "🏠 Home":
+    if page == "Home":
         col1, col2 = st.columns([2, 1])
 
         with col1:
-            st.markdown("## Welcome! 👋")
+            st.markdown("## Welcome")
             st.markdown("""
             ### What is this tool?
             This application helps HR professionals and managers identify employees at risk of leaving the organization.
@@ -288,12 +288,12 @@ def main():
             3. **Understand the factors** - See which factors contribute most to the risk
 
             ### Why use it?
-            - 🎯 **Early Detection** - Identify at-risk employees before they leave
-            - 💰 **Cost Savings** - Reduce recruitment and training costs
-            - 📈 **Better Retention** - Make data-driven retention decisions
-            - 🤝 **Improved Culture** - Address issues proactively
+            - **Early Detection** - Identify at-risk employees before they leave
+            - **Cost Savings** - Reduce recruitment and training costs
+            - **Better Retention** - Make data-driven retention decisions
+            - **Improved Culture** - Address issues proactively
 
-            ### 🚀 Get Started
+            ### Get Started
             Use the sidebar to navigate:
             - **Predict Risk** - Assess individual employees
             - **Bulk Analysis** - Upload CSV for multiple predictions
@@ -301,7 +301,7 @@ def main():
             """)
 
         with col2:
-            st.markdown("## 📊 Quick Stats")
+            st.markdown("## Quick Stats")
 
             # Display model performance metrics
             st.metric("Prediction Accuracy", "85%", help="Overall prediction reliability")
@@ -309,18 +309,18 @@ def main():
             st.metric("Processing Time", "< 1 sec", help="Instant predictions")
 
             st.markdown("---")
-            st.markdown("### 🎨 Key Features")
+            st.markdown("### Key Features")
             st.markdown("""
-            ✓ Instant risk predictions
-            ✓ Key factor analysis
-            ✓ Interactive visualizations
-            ✓ Actionable recommendations
-            ✓ Works on any device
+            • Instant risk predictions
+            • Key factor analysis
+            • Interactive visualizations
+            • Actionable recommendations
+            • Works on any device
             """)
 
     # Prediction page
-    elif page == "🔮 Predict Risk":
-        st.markdown("## 🔮 Predict Attrition Risk")
+    elif page == "Predict Risk":
+        st.markdown("## Predict Attrition Risk")
 
         sample_data = {}
 
@@ -331,7 +331,7 @@ def main():
             col1, col2, col3 = st.columns(3)
 
             with col1:
-                st.markdown("#### 👤 Personal")
+                st.markdown("#### Personal")
                 age = st.number_input("Age", min_value=18, max_value=70, value=sample_data.get('Age', 30))
                 gender = st.selectbox("Gender", ["Male", "Female"], index=0 if sample_data.get('Gender', 'Male') == 'Male' else 1)
                 marital_status = st.selectbox("Marital Status", ["Single", "Married", "Divorced"],
@@ -340,7 +340,7 @@ def main():
                                                       value=sample_data.get('DistanceFromHome', 10))
 
             with col2:
-                st.markdown("#### 💼 Job Details")
+                st.markdown("#### Job Details")
                 department = st.selectbox("Department", [
                     "Research & Development", "Sales", "Human Resources",
                     "IT", "Operations", "Finance", "Marketing",
@@ -357,7 +357,7 @@ def main():
                                                  value=sample_data.get('MonthlyIncome', 5000), step=100)
 
             with col3:
-                st.markdown("#### 📈 Experience")
+                st.markdown("#### Experience")
                 total_working_years = st.number_input("Total Working Years", min_value=0, max_value=40,
                                                       value=sample_data.get('TotalWorkingYears', 10))
                 years_at_company = st.number_input("Years at Company", min_value=0, max_value=40,
@@ -367,7 +367,7 @@ def main():
                 years_since_last_promotion = st.number_input("Years Since Last Promotion", min_value=0, max_value=15,
                                                              value=sample_data.get('YearsSinceLastPromotion', 1))
 
-            with st.expander("⚙️ Additional Details (Optional)", expanded=False):
+            with st.expander("Additional Details (Optional)", expanded=False):
                 col4, col5, col6 = st.columns(3)
 
                 with col4:
@@ -389,7 +389,7 @@ def main():
                     num_companies_worked = st.number_input("Number of Companies Worked", min_value=0, max_value=10,
                                                            value=sample_data.get('NumCompaniesWorked', 1))
 
-            submit_button = st.form_submit_button("🔮 Predict Attrition Risk", type="primary", use_container_width=True)
+            submit_button = st.form_submit_button("Predict Attrition Risk", type="primary", use_container_width=True)
 
         if submit_button:
             # Prepare input data
@@ -437,7 +437,7 @@ def main():
 
                 # Display results
                 st.markdown("---")
-                st.markdown("## 📊 Prediction Results")
+                st.markdown("## Prediction Results")
 
                 # Risk gauge
                 col1, col2 = st.columns([2, 1])
@@ -447,19 +447,19 @@ def main():
                     st.plotly_chart(fig, use_container_width=True)
 
                 with col2:
-                    st.markdown("### 🎯 Key Metrics")
+                    st.markdown("### Key Metrics")
                     st.metric("Attrition Risk", f"{probability * 100:.1f}%")
                     st.metric("Confidence", f"{max(1 - probability, probability) * 100:.1f}%")
 
                     if probability < 0.3:
-                        st.success("✅ Low risk of attrition")
+                        st.success("Low risk of attrition")
                     elif probability < 0.6:
-                        st.warning("⚠️ Medium risk of attrition")
+                        st.warning("Medium risk of attrition")
                     else:
-                        st.error("🚨 High risk of attrition")
+                        st.error("High risk of attrition")
 
                 # Key factors analysis
-                st.markdown("### 🔍 What's Driving This Risk?")
+                st.markdown("### What's Driving This Risk?")
 
                 # Compute SHAP values
                 from src.model import AttritionModel
@@ -482,32 +482,32 @@ def main():
                         st.markdown(f"🟢 **{feature}**: Decreases risk")
 
                 # Recommendations
-                st.markdown("### 💡 Recommendations")
+                st.markdown("### Recommendations")
 
                 if probability >= 0.6:
                     st.markdown("""
                     **Immediate Actions:**
-                    - 🎯 Schedule a one-on-one meeting to discuss career goals
-                    - 💰 Review compensation and benefits package
-                    - 📈 Create a personalized development plan
-                    - 🤝 Improve work-life balance initiatives
-                    - 🏆 Recognize and reward contributions
+                    - Schedule a one-on-one meeting to discuss career goals
+                    - Review compensation and benefits package
+                    - Create a personalized development plan
+                    - Improve work-life balance initiatives
+                    - Recognize and reward contributions
                     """)
                 elif probability >= 0.3:
                     st.markdown("""
                     **Preventive Measures:**
-                    - 💬 Regular check-ins to understand satisfaction levels
-                    - 📊 Monitor workload and provide support
-                    - 🎓 Offer training and development opportunities
-                    - 🌟 Ensure clear career progression path
+                    - Regular check-ins to understand satisfaction levels
+                    - Monitor workload and provide support
+                    - Offer training and development opportunities
+                    - Ensure clear career progression path
                     """)
                 else:
                     st.markdown("""
                     **Maintenance Actions:**
-                    - ✅ Continue current engagement practices
-                    - 📋 Periodic satisfaction surveys
-                    - 🎉 Celebrate achievements and milestones
-                    - 💪 Support continuous professional growth
+                    - Continue current engagement practices
+                    - Periodic satisfaction surveys
+                    - Celebrate achievements and milestones
+                    - Support continuous professional growth
                     """)
 
             except Exception as e:
@@ -515,14 +515,14 @@ def main():
                 st.exception(e)
 
     # Bulk Analysis page
-    elif page == "📊 Bulk Analysis":
-        st.markdown("## 📊 Bulk Analysis")
+    elif page == "Bulk Analysis":
+        st.markdown("## Bulk Analysis")
         st.markdown("Upload a CSV file with employee data to predict attrition risk for multiple employees at once.")
 
         col1, col2 = st.columns([2, 1])
 
         with col1:
-            st.markdown("### 📤 Upload CSV File")
+            st.markdown("### Upload CSV File")
 
             # Create template CSV
             template_data = {
@@ -554,7 +554,7 @@ def main():
             # Download template button
             csv_template = template_df.to_csv(index=False)
             st.download_button(
-                label="📥 Download CSV Template",
+                label="Download CSV Template",
                 data=csv_template,
                 file_name="employee_data_template.csv",
                 mime="text/csv",
@@ -571,14 +571,14 @@ def main():
                     # Read CSV
                     df = pd.read_csv(uploaded_file)
 
-                    st.success(f"✅ File uploaded successfully! Found {len(df)} employees.")
+                    st.success(f"File uploaded successfully! Found {len(df)} employees.")
 
                     # Show preview
-                    with st.expander("👀 Preview Data", expanded=True):
+                    with st.expander("Preview Data", expanded=True):
                         st.dataframe(df.head(10), use_container_width=True)
 
                     # Process predictions button
-                    if st.button("🔮 Analyze All Employees", type="primary", use_container_width=True):
+                    if st.button("Analyze All Employees", type="primary", use_container_width=True):
                         with st.spinner("Processing predictions..."):
                             results = []
 
@@ -653,7 +653,7 @@ def main():
                             results_df = pd.DataFrame(results)
 
                             st.markdown("---")
-                            st.markdown("## 📊 Analysis Results")
+                            st.markdown("## Analysis Results")
 
                             # Summary statistics
                             col1, col2, col3 = st.columns(3)
@@ -674,7 +674,7 @@ def main():
                                          delta=f"{(low_risk/len(results_df)*100):.1f}%")
 
                             # Display results table
-                            st.markdown("### 📋 Detailed Results")
+                            st.markdown("### Detailed Results")
 
                             # Color code by risk level
                             def color_risk(val):
@@ -694,7 +694,7 @@ def main():
                             # Download results
                             csv_results = results_df.to_csv(index=False)
                             st.download_button(
-                                label="📥 Download Results as CSV",
+                                label="Download Results as CSV",
                                 data=csv_results,
                                 file_name="attrition_risk_analysis_results.csv",
                                 mime="text/csv",
@@ -702,7 +702,7 @@ def main():
                             )
 
                             # Risk distribution chart
-                            st.markdown("### 📈 Risk Distribution")
+                            st.markdown("### Risk Distribution")
                             risk_counts = results_df['Risk_Level'].value_counts()
 
                             fig = px.pie(
@@ -726,11 +726,11 @@ def main():
                             st.plotly_chart(fig, use_container_width=True)
 
                 except Exception as e:
-                    st.error(f"⚠️ Error processing file: {str(e)}")
+                    st.error(f"Error processing file: {str(e)}")
                     st.info("Please ensure your CSV file matches the template format.")
 
         with col2:
-            st.markdown("### 📋 Template Format")
+            st.markdown("### Template Format")
             st.markdown("""
             Your CSV file should include these columns:
 
@@ -751,11 +751,11 @@ def main():
             - OverTime
             - And more...
 
-            💡 **Tip:** Download the template to see all available fields!
+            **Tip:** Download the template to see all available fields!
             """)
 
             st.markdown("---")
-            st.markdown("### ⚡ Quick Tips")
+            st.markdown("### Quick Tips")
             st.markdown("""
             - Use the template for proper formatting
             - All fields are case-sensitive
@@ -764,8 +764,8 @@ def main():
             """)
 
     # How It Works page
-    elif page == "💡 How It Works":
-        st.markdown("## 💡 How It Works")
+    elif page == "How It Works":
+        st.markdown("## How It Works")
 
         st.markdown("""
         ### Understanding the Predictor
@@ -778,7 +778,7 @@ def main():
 
         with col1:
             st.markdown("""
-            ### 🎯 What We Analyze
+            ### What We Analyze
 
             The AI examines 30+ factors including:
             - **Career progression** (job level, promotions, tenure)
@@ -790,7 +790,7 @@ def main():
 
         with col2:
             st.markdown("""
-            ### 📊 How Accurate Is It?
+            ### How Accurate Is It?
 
             - **85% prediction accuracy** across thousands of cases
             - Trained on real HR analytics data
@@ -803,7 +803,7 @@ def main():
         st.markdown("---")
 
         # Feature importance
-        st.markdown("### 🔑 What Matters Most?")
+        st.markdown("### What Matters Most?")
         st.markdown("Based on our analysis, these factors have the biggest impact on attrition risk:")
 
         fig = create_feature_importance_chart(feature_importance, top_n=12)
@@ -812,13 +812,13 @@ def main():
         st.markdown("---")
 
         # Key insights
-        st.markdown("### 💡 Key Patterns")
+        st.markdown("### Key Patterns")
 
         col1, col2 = st.columns(2)
 
         with col1:
             st.markdown("""
-            #### ⚠️ Warning Signs:
+            #### Warning Signs:
             - Low job level with long experience
             - Frequent overtime without recognition
             - Long time since last promotion
@@ -829,7 +829,7 @@ def main():
 
         with col2:
             st.markdown("""
-            #### ✅ Positive Indicators:
+            #### Positive Indicators:
             - Career progression aligned with tenure
             - Strong work-life balance
             - Competitive compensation
