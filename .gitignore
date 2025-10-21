@@ -40,10 +40,10 @@ env/
 *~
 .DS_Store
 
-# Model files (large files)
-*.pkl
-*.h5
-*.joblib
+# Model files (now included in repo for cloud deployment)
+# *.pkl
+# *.h5
+# *.joblib
 
 # Data files (if large)
 # data/*.csv
