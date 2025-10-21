@@ -259,7 +259,7 @@ def main():
         st.markdown("### 🎯 Navigation")
         page = st.radio(
             "",
-            ["🏠 Home", "🔮 Predict Risk", "💡 How It Works"],
+            ["🏠 Home", "🔮 Predict Risk", "📊 Bulk Analysis", "💡 How It Works"],
             label_visibility="collapsed"
         )
 
@@ -292,13 +292,13 @@ def main():
             - 💰 **Cost Savings** - Reduce recruitment and training costs
             - 📈 **Better Retention** - Make data-driven retention decisions
             - 🤝 **Improved Culture** - Address issues proactively
-            """)
 
-            st.markdown("### 🚀 Quick Start")
-            if st.button("Try with Sample Data", type="primary", use_container_width=True):
-                st.session_state['use_sample'] = True
-                st.session_state['page'] = "🔮 Predict Risk"
-                st.rerun()
+            ### 🚀 Get Started
+            Use the sidebar to navigate:
+            - **Predict Risk** - Assess individual employees
+            - **Bulk Analysis** - Upload CSV for multiple predictions
+            - **How It Works** - Learn about the AI model
+            """)
 
         with col2:
             st.markdown("## 📊 Quick Stats")
@@ -322,14 +322,7 @@ def main():
     elif page == "🔮 Predict Risk":
         st.markdown("## 🔮 Predict Attrition Risk")
 
-        # Check if sample data should be used
-        use_sample = st.session_state.get('use_sample', False)
-
-        if use_sample:
-            st.info("📝 Using sample employee data. You can modify the values below.")
-            st.session_state['use_sample'] = False
-
-        sample_data = get_sample_employee() if use_sample else {}
+        sample_data = {}
 
         # Create form
         with st.form("prediction_form"):
@@ -520,6 +513,255 @@ def main():
             except Exception as e:
                 st.error(f"Error making prediction: {str(e)}")
                 st.exception(e)
+
+    # Bulk Analysis page
+    elif page == "📊 Bulk Analysis":
+        st.markdown("## 📊 Bulk Analysis")
+        st.markdown("Upload a CSV file with employee data to predict attrition risk for multiple employees at once.")
+
+        col1, col2 = st.columns([2, 1])
+
+        with col1:
+            st.markdown("### 📤 Upload CSV File")
+
+            # Create template CSV
+            template_data = {
+                'Age': [35, 28, 42],
+                'Gender': ['Male', 'Female', 'Male'],
+                'MaritalStatus': ['Married', 'Single', 'Divorced'],
+                'DistanceFromHome': [10, 5, 20],
+                'Department': ['IT', 'Sales', 'Finance'],
+                'JobRole': ['Manager', 'Individual Contributor', 'Director'],
+                'JobLevel': [2, 1, 4],
+                'MonthlyIncome': [5000, 3500, 8000],
+                'TotalWorkingYears': [10, 5, 20],
+                'YearsAtCompany': [5, 2, 10],
+                'YearsInCurrentRole': [3, 1, 5],
+                'YearsSinceLastPromotion': [1, 0, 3],
+                'Education': [3, 2, 4],
+                'EducationField': ['Life Sciences', 'Marketing', 'Technical Degree'],
+                'BusinessTravel': ['Travel_Rarely', 'Travel_Frequently', 'Non-Travel'],
+                'JobSatisfaction': [3, 4, 2],
+                'EnvironmentSatisfaction': [3, 4, 3],
+                'WorkLifeBalance': [3, 3, 2],
+                'OverTime': ['No', 'Yes', 'No'],
+                'StockOptionLevel': [1, 0, 2],
+                'NumCompaniesWorked': [1, 2, 3]
+            }
+
+            template_df = pd.DataFrame(template_data)
+
+            # Download template button
+            csv_template = template_df.to_csv(index=False)
+            st.download_button(
+                label="📥 Download CSV Template",
+                data=csv_template,
+                file_name="employee_data_template.csv",
+                mime="text/csv",
+                use_container_width=True
+            )
+
+            st.markdown("---")
+
+            # File uploader
+            uploaded_file = st.file_uploader("Choose a CSV file", type=['csv'])
+
+            if uploaded_file is not None:
+                try:
+                    # Read CSV
+                    df = pd.read_csv(uploaded_file)
+
+                    st.success(f"✅ File uploaded successfully! Found {len(df)} employees.")
+
+                    # Show preview
+                    with st.expander("👀 Preview Data", expanded=True):
+                        st.dataframe(df.head(10), use_container_width=True)
+
+                    # Process predictions button
+                    if st.button("🔮 Analyze All Employees", type="primary", use_container_width=True):
+                        with st.spinner("Processing predictions..."):
+                            results = []
+
+                            for idx, row in df.iterrows():
+                                try:
+                                    # Prepare input data with defaults for missing fields
+                                    input_data = {
+                                        'Age': row.get('Age', 30),
+                                        'BusinessTravel': row.get('BusinessTravel', 'Travel_Rarely'),
+                                        'DailyRate': row.get('DailyRate', 800),
+                                        'Department': row.get('Department', 'IT'),
+                                        'DistanceFromHome': row.get('DistanceFromHome', 10),
+                                        'Education': row.get('Education', 3),
+                                        'EducationField': row.get('EducationField', 'Life Sciences'),
+                                        'EnvironmentSatisfaction': row.get('EnvironmentSatisfaction', 3),
+                                        'Gender': row.get('Gender', 'Male'),
+                                        'HourlyRate': row.get('HourlyRate', 65),
+                                        'JobInvolvement': row.get('JobInvolvement', 3),
+                                        'JobLevel': row.get('JobLevel', 2),
+                                        'JobRole': row.get('JobRole', 'Manager'),
+                                        'JobSatisfaction': row.get('JobSatisfaction', 3),
+                                        'MaritalStatus': row.get('MaritalStatus', 'Single'),
+                                        'MonthlyIncome': row.get('MonthlyIncome', 5000),
+                                        'MonthlyRate': row.get('MonthlyRate', row.get('MonthlyIncome', 5000)),
+                                        'NumCompaniesWorked': row.get('NumCompaniesWorked', 1),
+                                        'OverTime': row.get('OverTime', 'No'),
+                                        'PercentSalaryHike': row.get('PercentSalaryHike', 13),
+                                        'PerformanceRating': row.get('PerformanceRating', 3),
+                                        'RelationshipSatisfaction': row.get('RelationshipSatisfaction', 3),
+                                        'StockOptionLevel': row.get('StockOptionLevel', 1),
+                                        'TotalWorkingYears': row.get('TotalWorkingYears', 10),
+                                        'TrainingTimesLastYear': row.get('TrainingTimesLastYear', 3),
+                                        'WorkLifeBalance': row.get('WorkLifeBalance', 3),
+                                        'YearsAtCompany': row.get('YearsAtCompany', 5),
+                                        'YearsInCurrentRole': row.get('YearsInCurrentRole', 3),
+                                        'YearsSinceLastPromotion': row.get('YearsSinceLastPromotion', 1),
+                                        'YearsWithCurrManager': row.get('YearsWithCurrManager', 3)
+                                    }
+
+                                    # Make prediction
+                                    X = processor.prepare_single_prediction(input_data)
+                                    probability = model_obj.predict_proba(X)[0][1]
+
+                                    # Determine risk level
+                                    if probability < 0.3:
+                                        risk_level = "Low Risk"
+                                    elif probability < 0.6:
+                                        risk_level = "Medium Risk"
+                                    else:
+                                        risk_level = "High Risk"
+
+                                    results.append({
+                                        'Employee_Index': idx + 1,
+                                        'Age': input_data['Age'],
+                                        'Department': input_data['Department'],
+                                        'JobRole': input_data['JobRole'],
+                                        'Attrition_Risk_%': round(probability * 100, 1),
+                                        'Risk_Level': risk_level
+                                    })
+
+                                except Exception as e:
+                                    results.append({
+                                        'Employee_Index': idx + 1,
+                                        'Age': row.get('Age', 'N/A'),
+                                        'Department': row.get('Department', 'N/A'),
+                                        'JobRole': row.get('JobRole', 'N/A'),
+                                        'Attrition_Risk_%': 'Error',
+                                        'Risk_Level': f'Error: {str(e)}'
+                                    })
+
+                            # Create results dataframe
+                            results_df = pd.DataFrame(results)
+
+                            st.markdown("---")
+                            st.markdown("## 📊 Analysis Results")
+
+                            # Summary statistics
+                            col1, col2, col3 = st.columns(3)
+
+                            with col1:
+                                high_risk = len(results_df[results_df['Risk_Level'] == 'High Risk'])
+                                st.metric("High Risk Employees", high_risk,
+                                         delta=f"{(high_risk/len(results_df)*100):.1f}%")
+
+                            with col2:
+                                medium_risk = len(results_df[results_df['Risk_Level'] == 'Medium Risk'])
+                                st.metric("Medium Risk Employees", medium_risk,
+                                         delta=f"{(medium_risk/len(results_df)*100):.1f}%")
+
+                            with col3:
+                                low_risk = len(results_df[results_df['Risk_Level'] == 'Low Risk'])
+                                st.metric("Low Risk Employees", low_risk,
+                                         delta=f"{(low_risk/len(results_df)*100):.1f}%")
+
+                            # Display results table
+                            st.markdown("### 📋 Detailed Results")
+
+                            # Color code by risk level
+                            def color_risk(val):
+                                if val == 'High Risk':
+                                    color = '#fee2e2'
+                                elif val == 'Medium Risk':
+                                    color = '#fef3c7'
+                                elif val == 'Low Risk':
+                                    color = '#d1fae5'
+                                else:
+                                    color = 'white'
+                                return f'background-color: {color}'
+
+                            styled_df = results_df.style.applymap(color_risk, subset=['Risk_Level'])
+                            st.dataframe(styled_df, use_container_width=True, height=400)
+
+                            # Download results
+                            csv_results = results_df.to_csv(index=False)
+                            st.download_button(
+                                label="📥 Download Results as CSV",
+                                data=csv_results,
+                                file_name="attrition_risk_analysis_results.csv",
+                                mime="text/csv",
+                                use_container_width=True
+                            )
+
+                            # Risk distribution chart
+                            st.markdown("### 📈 Risk Distribution")
+                            risk_counts = results_df['Risk_Level'].value_counts()
+
+                            fig = px.pie(
+                                values=risk_counts.values,
+                                names=risk_counts.index,
+                                title="Employee Risk Distribution",
+                                color=risk_counts.index,
+                                color_discrete_map={
+                                    'Low Risk': '#10b981',
+                                    'Medium Risk': '#f59e0b',
+                                    'High Risk': '#ef4444'
+                                }
+                            )
+
+                            fig.update_layout(
+                                font={'family': "Inter, sans-serif"},
+                                plot_bgcolor="rgba(0,0,0,0)",
+                                paper_bgcolor="rgba(0,0,0,0)"
+                            )
+
+                            st.plotly_chart(fig, use_container_width=True)
+
+                except Exception as e:
+                    st.error(f"⚠️ Error processing file: {str(e)}")
+                    st.info("Please ensure your CSV file matches the template format.")
+
+        with col2:
+            st.markdown("### 📋 Template Format")
+            st.markdown("""
+            Your CSV file should include these columns:
+
+            **Required:**
+            - Age
+            - Department
+            - JobRole
+            - JobLevel
+            - MonthlyIncome
+            - YearsAtCompany
+
+            **Optional:**
+            - Gender
+            - MaritalStatus
+            - Education
+            - JobSatisfaction
+            - WorkLifeBalance
+            - OverTime
+            - And more...
+
+            💡 **Tip:** Download the template to see all available fields!
+            """)
+
+            st.markdown("---")
+            st.markdown("### ⚡ Quick Tips")
+            st.markdown("""
+            - Use the template for proper formatting
+            - All fields are case-sensitive
+            - Missing fields will use defaults
+            - You can analyze up to 1000 employees
+            """)
 
     # How It Works page
     elif page == "💡 How It Works":
