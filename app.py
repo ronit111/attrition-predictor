@@ -29,71 +29,94 @@ def load_css():
 
 load_css()
 
-# Load model and processor
-@st.cache_resource
+# Load model and processor (NO CACHING - fixes stuck error state)
 def load_model_and_processor():
-    """Load model and processor, train if needed"""
+    """Load model and processor, train if needed. Uses session_state for per-session caching."""
     import os
     import subprocess
+    import sys
+
+    # Use session state for caching instead of @st.cache_resource
+    if 'model_loaded' in st.session_state and st.session_state.model_loaded:
+        return st.session_state.model_data, st.session_state.processor
+
+    # Ensure models directory exists
+    os.makedirs('models', exist_ok=True)
 
     model_path = 'models/attrition_model.pkl'
     processor_path = 'models/data_processor.pkl'
 
-    # Check if models exist
+    # Train if models don't exist
     if not os.path.exists(model_path) or not os.path.exists(processor_path):
-        st.warning("🔄 Models not found. Training new model... (this will take ~1 minute)")
+        st.warning("🔄 Training model for first time... (~1 minute)")
+
         with st.spinner("Training in progress..."):
             try:
-                import sys
                 python_exec = sys.executable
-                result = subprocess.run([python_exec, 'train_model_simple.py'],
-                                      check=True, capture_output=True, text=True)
-                st.code(result.stdout)
+                result = subprocess.run(
+                    [python_exec, 'train_model_simple.py'],
+                    check=True,
+                    capture_output=True,
+                    text=True
+                )
                 st.success("✅ Model trained successfully!")
+                with st.expander("Training logs"):
+                    st.code(result.stdout)
             except subprocess.CalledProcessError as e:
-                st.error(f"Training failed: {e.stderr}")
-                raise
-            except Exception as e:
-                st.error(f"Failed to train model: {str(e)}")
-                raise
+                st.error("❌ Training failed!")
+                st.error(f"Error: {e.stderr}")
+                raise RuntimeError(f"Model training failed: {e.stderr}")
 
-    # Try to load models
+    # Load models
     try:
         model_data = joblib.load(model_path)
         processor = joblib.load(processor_path)
+
+        # Cache in session state
+        st.session_state.model_loaded = True
+        st.session_state.model_data = model_data
+        st.session_state.processor = processor
+
         return model_data, processor
+
     except Exception as e:
-        # If loading fails (compatibility issue), retrain
-        st.warning(f"⚠️ Model compatibility issue detected")
-        st.info(f"Error: {str(e)}")
-        st.info("Retraining model now... (~1 minute). This is normal on first deployment.")
+        st.error(f"❌ Failed to load models: {str(e)}")
+        st.info("This might be a compatibility issue. Retraining...")
 
-        with st.spinner("Training in progress..."):
+        # Delete incompatible models
+        try:
+            if os.path.exists(model_path):
+                os.remove(model_path)
+            if os.path.exists(processor_path):
+                os.remove(processor_path)
+        except:
+            pass
+
+        # Retrain
+        with st.spinner("Retraining model..."):
             try:
-                import sys
                 python_exec = sys.executable
-                st.write(f"Using Python: {python_exec}")
-                result = subprocess.run([python_exec, 'train_model_simple.py'],
-                                      check=True, capture_output=True, text=True,
-                                      cwd=os.getcwd())
-                st.code(result.stdout)
+                result = subprocess.run(
+                    [python_exec, 'train_model_simple.py'],
+                    check=True,
+                    capture_output=True,
+                    text=True
+                )
+                st.success("✅ Model retrained!")
 
-                # Reload models
+                # Load fresh models
                 model_data = joblib.load(model_path)
                 processor = joblib.load(processor_path)
-                st.success("✅ Model retrained and loaded successfully!")
-                st.info("Refreshing app...")
-                st.rerun()
-            except subprocess.CalledProcessError as e:
-                st.error(f"Training failed!")
-                st.error(f"Return code: {e.returncode}")
-                st.error(f"STDOUT: {e.stdout}")
-                st.error(f"STDERR: {e.stderr}")
-                raise
-            except Exception as retrain_error:
-                st.error(f"Failed to retrain: {str(retrain_error)}")
-                import traceback
-                st.code(traceback.format_exc())
+
+                # Cache in session state
+                st.session_state.model_loaded = True
+                st.session_state.model_data = model_data
+                st.session_state.processor = processor
+
+                return model_data, processor
+
+            except Exception as retry_error:
+                st.error(f"❌ Retraining also failed: {str(retry_error)}")
                 raise
 
 # Sample employee data for demo
