@@ -42,12 +42,20 @@ def load_model_and_processor():
     # Check if models exist
     if not os.path.exists(model_path) or not os.path.exists(processor_path):
         st.warning("🔄 Models not found. Training new model... (this will take ~1 minute)")
-        try:
-            subprocess.run(['python', 'train_model_simple.py'], check=True, capture_output=True, text=True)
-            st.success("✅ Model trained successfully!")
-        except Exception as e:
-            st.error(f"Failed to train model: {str(e)}")
-            raise
+        with st.spinner("Training in progress..."):
+            try:
+                import sys
+                python_exec = sys.executable
+                result = subprocess.run([python_exec, 'train_model_simple.py'],
+                                      check=True, capture_output=True, text=True)
+                st.code(result.stdout)
+                st.success("✅ Model trained successfully!")
+            except subprocess.CalledProcessError as e:
+                st.error(f"Training failed: {e.stderr}")
+                raise
+            except Exception as e:
+                st.error(f"Failed to train model: {str(e)}")
+                raise
 
     # Try to load models
     try:
@@ -56,19 +64,37 @@ def load_model_and_processor():
         return model_data, processor
     except Exception as e:
         # If loading fails (compatibility issue), retrain
-        st.warning(f"⚠️ Model compatibility issue detected. Retraining model... (~1 minute)")
-        st.info("This is normal on first deployment. Please wait...")
-        try:
-            result = subprocess.run(['python', 'train_model_simple.py'], check=True, capture_output=True, text=True)
-            st.write(result.stdout)  # Show training progress
-            model_data = joblib.load(model_path)
-            processor = joblib.load(processor_path)
-            st.success("✅ Model retrained and loaded successfully!")
-            st.rerun()  # Reload the app with new model
-        except Exception as retrain_error:
-            st.error(f"Failed to retrain model: {str(retrain_error)}")
-            st.error("Please check the logs or contact support.")
-            raise
+        st.warning(f"⚠️ Model compatibility issue detected")
+        st.info(f"Error: {str(e)}")
+        st.info("Retraining model now... (~1 minute). This is normal on first deployment.")
+
+        with st.spinner("Training in progress..."):
+            try:
+                import sys
+                python_exec = sys.executable
+                st.write(f"Using Python: {python_exec}")
+                result = subprocess.run([python_exec, 'train_model_simple.py'],
+                                      check=True, capture_output=True, text=True,
+                                      cwd=os.getcwd())
+                st.code(result.stdout)
+
+                # Reload models
+                model_data = joblib.load(model_path)
+                processor = joblib.load(processor_path)
+                st.success("✅ Model retrained and loaded successfully!")
+                st.info("Refreshing app...")
+                st.rerun()
+            except subprocess.CalledProcessError as e:
+                st.error(f"Training failed!")
+                st.error(f"Return code: {e.returncode}")
+                st.error(f"STDOUT: {e.stdout}")
+                st.error(f"STDERR: {e.stderr}")
+                raise
+            except Exception as retrain_error:
+                st.error(f"Failed to retrain: {str(retrain_error)}")
+                import traceback
+                st.code(traceback.format_exc())
+                raise
 
 # Sample employee data for demo
 def get_sample_employee():
