@@ -22,22 +22,74 @@ class DataProcessor:
         return df
 
     def engineer_features(self, df):
-        """Create additional meaningful features"""
+        """Create additional meaningful features with advanced engineering"""
         df = df.copy()
 
-        # Create tenure groups (as numerical)
+        # Basic engineered features
         df['TenureGroup'] = pd.cut(df['YearsAtCompany'],
                                      bins=[0, 2, 5, 10, 40],
                                      labels=[0, 1, 2, 3])
 
-        # Work-life balance indicator
         df['WorkLifeBalanceScore'] = df['OverTime'].map({'Yes': 0, 'No': 1})
-
-        # Career progression rate
         df['CareerProgressionRate'] = df['YearsSinceLastPromotion'] / (df['YearsAtCompany'] + 1)
-
-        # Salary satisfaction (relative to job level)
         df['SalaryToLevel'] = df['MonthlyIncome'] / (df['JobLevel'] + 1)
+
+        # Advanced interaction features
+        # Income and satisfaction interactions
+        df['Income_JobSatisfaction'] = df['MonthlyIncome'] * df['JobSatisfaction']
+        df['Income_EnvironmentSat'] = df['MonthlyIncome'] * df['EnvironmentSatisfaction']
+        df['Income_WorkLifeBalance'] = df['MonthlyIncome'] * df['WorkLifeBalance']
+
+        # Job level interactions
+        df['JobLevel_Tenure'] = df['JobLevel'] * df['YearsAtCompany']
+        df['JobLevel_Age'] = df['JobLevel'] * df['Age']
+        df['JobLevel_Income'] = df['JobLevel'] * df['MonthlyIncome']
+
+        # Satisfaction composite score
+        df['OverallSatisfaction'] = (
+            df['JobSatisfaction'] +
+            df['EnvironmentSatisfaction'] +
+            df['RelationshipSatisfaction'] +
+            df['WorkLifeBalance']
+        ) / 4.0
+
+        # Career velocity metrics
+        df['PromotionVelocity'] = df['YearsAtCompany'] / (df['YearsSinceLastPromotion'] + 1)
+        df['RoleStability'] = df['YearsInCurrentRole'] / (df['YearsAtCompany'] + 1)
+        df['ManagerStability'] = df['YearsWithCurrManager'] / (df['YearsAtCompany'] + 1)
+
+        # Experience ratios
+        df['CompanyTenureRatio'] = df['YearsAtCompany'] / (df['TotalWorkingYears'] + 1)
+        df['ExperienceToAge'] = df['TotalWorkingYears'] / (df['Age'] + 1)
+
+        # Compensation metrics
+        df['SalaryGrowth'] = (df['PercentSalaryHike'] / 100) * df['MonthlyIncome']
+        df['CompensationIndex'] = (
+            df['MonthlyIncome'] +
+            (df['StockOptionLevel'] * 10000) +
+            (df['PercentSalaryHike'] * 100)
+        )
+
+        # Work intensity indicators
+        df['WorkIntensity'] = (
+            df['OverTime'].map({'Yes': 1, 'No': 0}) *
+            df['JobInvolvement'] *
+            (5 - df['WorkLifeBalance'])  # Higher score = worse balance
+        )
+
+        # Job mobility indicator
+        df['JobMobility'] = df['NumCompaniesWorked'] / (df['TotalWorkingYears'] + 1)
+
+        # Stagnation indicators
+        df['CareerStagnation'] = (
+            (df['YearsSinceLastPromotion'] > 5).astype(int) *
+            (df['YearsInCurrentRole'] > 5).astype(int)
+        )
+
+        # Polynomial features for key predictors
+        df['MonthlyIncome_Squared'] = df['MonthlyIncome'] ** 2
+        df['Age_Squared'] = df['Age'] ** 2
+        df['YearsAtCompany_Squared'] = df['YearsAtCompany'] ** 2
 
         return df
 

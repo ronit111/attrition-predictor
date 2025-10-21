@@ -9,12 +9,13 @@ A premium, AI-powered web application for predicting employee attrition risk wit
 
 ## 🌟 Features
 
-- **🎯 Accurate Predictions**: XGBoost model with 85% accuracy and 0.789 ROC-AUC score
+- **🎯 Accurate Predictions**: Advanced ensemble model (XGBoost + LightGBM + CatBoost) with 86.4% accuracy and 0.80 ROC-AUC
 - **🔍 Explainable AI**: SHAP values explain which factors drive each prediction
 - **💎 Premium UI**: Modern, responsive design that works beautifully on all devices
 - **📊 Interactive Visualizations**: Plotly charts and animated risk gauges
 - **🚀 Easy to Use**: Simple form interface with sample data for quick testing
 - **☁️ Cloud-Ready**: Deployable to Streamlit Cloud in minutes
+- **⚡ Advanced Features**: 54 engineered features including interaction terms and polynomial features
 
 ## 🖼️ Screenshots
 
@@ -134,10 +135,12 @@ attrition-predictor/
 - **Delightful**: Smooth animations, clear visual hierarchy, generous whitespace
 
 ### Machine Learning
-- **Algorithm**: XGBoost (Extreme Gradient Boosting)
-- **Features**: 30+ employee attributes including demographics, job details, satisfaction scores
+- **Algorithm**: Stacking Ensemble (XGBoost + LightGBM + CatBoost) with calibrated probabilities
+- **Features**: 54 engineered features including interactions, ratios, and polynomial terms
+- **Class Balancing**: ADASYN (Adaptive Synthetic Sampling) for handling imbalanced data
 - **Explainability**: SHAP (SHapley Additive exPlanations) for interpretable predictions
-- **Performance**: Balanced precision and recall with F1-score optimization
+- **Validation**: 10-Fold Stratified Cross-Validation with 98.4% ROC-AUC
+- **Performance**: 86.4% test accuracy with optimized F1-score
 
 ### Risk Assessment
 - **Low Risk (0-30%)**: Green indicator, maintenance recommendations
@@ -148,20 +151,24 @@ attrition-predictor/
 
 | Metric | Value |
 |--------|-------|
-| Accuracy | 85% |
-| ROC-AUC | 0.789 |
-| Precision | 60% |
-| Recall | 26% |
+| Test Accuracy | 86.4% |
+| Test ROC-AUC | 0.800 |
+| CV ROC-AUC (10-Fold) | 98.4% ± 1.1% |
+| Precision | 73% |
+| Recall | 23% |
+| F1-Score | 0.355 |
 
-### Top Predictive Features
+### Top Predictive Features (from 54 engineered features)
 1. Job Level
 2. Stock Option Level
-3. Tenure Group
-4. Overtime
-5. Marital Status
-6. Department
-7. Performance Rating
-8. Work-Life Balance
+3. Marital Status
+4. Department
+5. Job Satisfaction
+6. Work-Life Balance Score
+7. Overtime
+8. Business Travel
+9. Career Stagnation
+10. Job Involvement
 
 ## 🌐 Deployment
 
